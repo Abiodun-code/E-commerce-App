@@ -1,0 +1,188 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+        integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.6.0.js"
+        integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+        integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+        crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="{% static 'shop/style.css' %}">
+    <title>Document</title>
+</head>
+{% block content %}
+
+<body>
+    <div class="container-fluid">
+
+
+        <div class="row">
+            <div class="col-md-12">
+                <nav class="navbar navbar-expand-lg navbar-light" style="background-color: #e3f2fd;">
+                    <a class="navbar-brand" href="#">Navbar</a>
+                    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+                        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="collapse navbar-collapse" id="navbarNav">
+                        <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+                            <li class="nav-item active">
+                                <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#">Features</a>
+                            </li>
+                            <li class="nav-item">
+                                <button id="cart" data-html="true" type="button" class="btn btn-secondary"
+                                    data-container="body" data-toggle="popover" data-placement="bottom" data-content="Vivamus
+                                    sagittis lacus vel augue laoreet rutrum faucibus.">
+                                    Cart(0)
+                                </button>
+                            </li>
+                        </ul>
+                        <ul class="navbar-nav nav-inline my-2 my-lg-0">
+                            {% if user.is_authenticated %}
+                            <li class="btn btn-secondary disable">{{ user.username }}</li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="logout">Logout</a>
+                            </li>
+                            {% else %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="signin">Signin</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="login">Login
+                                </a>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                </nav>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                <form class="card card-sm">
+                    <div class="card-body row no-gutter align-item-center">
+                        <div class="col">
+                            <input type="search" name="item_name" placeholder="Search for products"
+                                class="form-control form-control-borderless">
+                        </div>
+                        <div class="col-auto">
+                            <button class="btn btn-success" type="submit">Search</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+
+        <div class="row">
+            {% for product in product_objects %}
+            <div class="col-md-3">
+                <div class="card">
+                    <img src="{{ product.image.url }}" alt="" class="card-img-top">
+                    <div class="card-body">
+                        <div id="nm{{ product.id }}" class="card-title">
+                            {{ product.title }}
+                        </div>
+                        <div id="price{{ product.id }}" class="card-text">
+                            {{ product.price }}
+                        </div>
+
+                        <a href="{{ product.id }}" class="btn btn-warning">View</a>
+                        <button id="{{ product.id }}" class="btn atc btn-warning">Add to Cart</button>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+
+        <div class="row" style="padding: 5rem 0 0 7rem;">
+            <div class="col-md-3 offset-md-4">
+                <ul class="pagination">
+                    {% if product_objects.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ product_objects.previous_page_number }}">Previous</a>
+                    </li>
+                    {% endif %}
+
+
+                    <li class="page-item active">
+                        <a class="page-link" href="?page={{ product_objects.number }}">Curent</a>
+                    </li>
+
+
+                    {% if product_objects.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ product_objects.next_page_number }}">Next</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+
+
+    </div>
+</body>
+<script type="text/javascript">
+    console.log('These is working');
+
+    if (localStorage.getItem('cart') == null) {
+        var cart = {};
+    }
+    else {
+        cart = JSON.parse(localStorage.getItem('cart'));
+    }
+
+    $(document).on('click', '.atc', function () {
+        console.log('The add to cart button is clicked');
+        var item_id = this.id.toString();
+        console.log(item_id);
+
+        if (cart[item_id] != undefined) {
+            quantity = cart[item_id][0] + 1;
+            cart[item_id][0] = quantity;
+            cart[item_id][2] = cart[item_id][2] + parseFloat(document.getElementById("price" + item_id).innerHTML);
+        }
+        else {
+            quantity = 1;
+            price = parseFloat(document.getElementById("price" + item_id).innerHTML);
+            name = document.getElementById("nm" + item_id).innerHTML
+            cart[item_id] = [quantity, name, price];
+
+        }
+        console.log(cart);
+        localStorage.setItem('cart', JSON.stringify(cart));
+        document.getElementById("cart").innerHTML = "Cart(" + Object.keys(cart).length + ")";
+    });
+
+    $(function () {
+        var cartString = "";
+        cartString += "<h5> These is a cart</h5>";
+        var cartIndex = 1;
+        for (var x in cart) {
+            cartString += cartIndex;
+            cartString += document.getElementById("nm" + x).innerHTML + "Qty:" + cart[x][0] + "</br>";
+            cartIndex += 1;
+        }
+        cartString += "<a href='check'><button class='btn btn-warning' id='checkout'>Checkout</button></a>";
+        $('[data-toggle="popover"]').popover()
+        document.getElementById("cart").setAttribute('data-content', cartString)
+    });
+
+</script>
+{% endblock %}
+
+</html>
